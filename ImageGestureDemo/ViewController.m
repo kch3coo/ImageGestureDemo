@@ -124,6 +124,44 @@ DragType currentDragType = DRAG_OFF;
                               self.view.frame.size.width,self.view.frame.size.height]];
 }
 
+//custom code from Ming Jin Lu
+- (IBAction)rotate90BtnOnClick:(id)sender {
+    NSLog(@"rotate90 btn onclick");
+    static CGFloat initialRotation;
+    static CGAffineTransform initialTransform;
+    
+    initialTransform = _foregroundImageView.transform;
+    initialRotation = atan2f(_foregroundImageView.transform.b, _foregroundImageView.transform.a);
+    CGFloat radian;
+    radian = 90 * M_PI / 180;
+
+    _foregroundImageView.transform = CGAffineTransformRotate(initialTransform, radian);
+    
+}
+
+
+- (IBAction)enlargeBtnOnClick:(id)sender {
+    NSLog(@"enlarge btn onclick");
+    static CGSize initialSize;
+    static CGAffineTransform initialTransform;
+    initialSize = _foregroundImageView.frame.size;
+    initialTransform  = _foregroundImageView.transform;
+
+
+    // make sure it stays visible
+    float scale = 1.5;
+    float newWidth = initialSize.width * scale;
+    float newHeight = initialSize.height * scale;
+    
+    // make sure we can still touch it
+    if (newWidth > touchRadius * 2 && newHeight > touchRadius * 2) {
+        // scale the image
+        _foregroundImageView.transform = CGAffineTransformScale(initialTransform, scale, scale);
+    }
+
+}
+
+
 //
 // Update the info labels from the passed objects
 //
@@ -467,6 +505,7 @@ DragType currentDragType = DRAG_OFF;
         }
     }
     
+    NSLog(@"Resize action detected on FG with touch:%@ and change:%@", NSStringFromCGPoint(touch), NSStringFromCGPoint(translation));
     [self updateInfo:recognizer.view touch:touch change:translation];
 }
 
@@ -491,7 +530,7 @@ DragType currentDragType = DRAG_OFF;
         [self getActualSize:recognizer.view];
     }
     recognizer.view.transform = CGAffineTransformTranslate(initialTransform, translation.x, translation.y);
-    
+    NSLog(@"Pan action detected on BG with touch:%@ and change:%@", NSStringFromCGPoint(touch), NSStringFromCGPoint(translation));
     [self updateInfo:recognizer.view touch:touch change:translation];
 }
 
@@ -528,8 +567,9 @@ DragType currentDragType = DRAG_OFF;
         // scale the image
         recognizer.view.transform = CGAffineTransformScale(initialTransform, scale, scale);
     }
-    
+    NSLog(@"Pinch action detected on BG with touch:%@ and change:%@", NSStringFromCGPoint(touch), NSStringFromCGPoint(change));
     [self updateInfo:recognizer.view touch:touch change:change];
+
 }
 
 //
@@ -553,6 +593,8 @@ DragType currentDragType = DRAG_OFF;
     }
     
     recognizer.view.transform = CGAffineTransformRotate(initialTransform, recognizer.rotation);
+    
+    NSLog(@"Rotate action detected with touch:%@ and change:%@", NSStringFromCGPoint(touch), NSStringFromCGPoint(CGPointMake(initialRotation, recognizer.rotation)));
     
     [self updateInfo:recognizer.view touch:touch change:CGPointMake(initialRotation, recognizer.rotation)];
 }
